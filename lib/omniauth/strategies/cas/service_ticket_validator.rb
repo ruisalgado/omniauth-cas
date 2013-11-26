@@ -83,8 +83,11 @@ module OmniAuth
             http.ca_path = @options.ca_path
           end
           http.start do |c|
-            response = c.get "#{@uri.path}?#{@uri.query}", VALIDATION_REQUEST_HEADERS.dup
+            response = c.request_get("#{@uri.path}?#{@uri.query}", VALIDATION_REQUEST_HEADERS.dup)
             result = response.body
+            if encoding = response['content-type'].match(/charset=(.*)$/)[1]
+              result = result.force_encoding(encoding).encode(Encoding.default_internal)
+            end
           end
           result
         end
